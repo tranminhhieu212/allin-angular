@@ -1,0 +1,11 @@
+.department-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 9px 0;
+  align-items: end;
+}
+
+.department-badge {
+  white-space: nowrap;
+}

@@ -1,0 +1,27 @@
+<div class="department-filter-container">
+  <div class="filter-header">
+    <button (click)="selectAll()" class="filter-btn">Select All</button>
+    <button (click)="clearAll()" class="filter-btn">Clear</button>
+  </div>
+
+  <div class="filter-search">
+    <input
+      type="text"
+      [(ngModel)]="searchText"
+      (ngModelChange)="onSearchChange()"
+      placeholder="Search departments..."
+      class="search-input"
+    />
+  </div>
+
+  <div class="filter-list">
+    <label *ngFor="let option of filteredOptions" class="filter-option">
+      <input
+        type="checkbox"
+        [(ngModel)]="option.selected"
+        (change)="onSelectionChange()"
+      />
+      <span>{{ option.value }}</span>
+    </label>
+  </div>
+</div>

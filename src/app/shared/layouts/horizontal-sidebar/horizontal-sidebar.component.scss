@@ -1,0 +1,13 @@
+nz-segmented {
+  ::ng-deep .ant-segmented-item-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  ::ng-deep .ant-segmented-item-icon {
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+}

@@ -1,0 +1,8 @@
+<div class="department-list">
+  <span
+    *ngFor="let department of departments"
+    [class]="getDepartmentClass(department)"
+    class="department-badge">
+    {{ department }}
+  </span>
+</div>

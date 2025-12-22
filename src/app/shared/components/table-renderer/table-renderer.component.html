@@ -1,0 +1,24 @@
+<div class="flex items-center justify-end gap-4 mb-4">
+  <div class="flex items-center justify-between gap-4 w-full">
+    <ng-content select="[table-actions]"></ng-content>
+    <app-external-filters *ngIf="externalFilter" [columnDef]="columnDef"></app-external-filters>
+  </div>
+
+  <app-column-visibility
+    *ngIf="columnVisibility"
+    [columns]="columnVisibilityList"
+    (visibilityChange)="onVisibilityChange($event)"
+    (columnOrderChange)="onColumnOrderChange($event)"
+    (resetToDefault)="onResetColumnVisibility()"
+  ></app-column-visibility>
+</div>
+
+<ag-grid-angular
+    class="ag-theme-alpine w-full h-[800px]"
+    [rowData]="rowData"
+    [columnDefs]="columnVisibility ? visibleColumnDefs : columnDef"
+    [defaultColDef]="defaultColDef"
+    [gridOptions]="gridOptions"
+    (gridReady)="onGridReady($event)"
+    (filterChanged)="onFilterChanged($event)"
+></ag-grid-angular>

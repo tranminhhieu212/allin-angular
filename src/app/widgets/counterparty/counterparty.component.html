@@ -1,0 +1,12 @@
+<app-table-renderer
+    [columnDef]="counterPartyColumns"
+    [rowData]="counterPartyDatas"
+    [pagination]="false"
+    [externalFilter]="false"
+    [columnVisibility]="true"
+    (gridReady)="onGridReady($event)"
+> 
+    <button table-actions nz-button nzType="primary" (click)="addNewCounterparty()">
+        Add Counterparty
+    </button>
+</app-table-renderer>
