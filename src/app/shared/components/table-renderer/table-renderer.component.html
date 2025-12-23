@@ -1,7 +1,10 @@
 <div class="flex items-center justify-end gap-4 mb-4">
   <div class="flex items-center justify-between gap-4 w-full">
     <ng-content select="[table-actions]"></ng-content>
-    <app-external-filters *ngIf="externalFilter" [columnDef]="columnDef"></app-external-filters>
+    <div class="flex items-center justify-between gap-4">
+      <button nz-button nzType="default" (click)="clearFilters()">Reset Filters</button>
+      <app-external-filters *ngIf="externalFilter" [columnDef]="columnDef"></app-external-filters>
+    </div>
   </div>
 
   <app-column-visibility
@@ -10,11 +13,11 @@
     (visibilityChange)="onVisibilityChange($event)"
     (columnOrderChange)="onColumnOrderChange($event)"
     (resetToDefault)="onResetColumnVisibility()"
-  ></app-column-visibility>
+  ></app-column-visibility> 
 </div>
 
 <ag-grid-angular
-    class="ag-theme-alpine w-full h-[800px]"
+    class="ag-theme-alpine w-full h-[700px]"
     [rowData]="rowData"
     [columnDefs]="columnVisibility ? visibleColumnDefs : columnDef"
     [defaultColDef]="defaultColDef"

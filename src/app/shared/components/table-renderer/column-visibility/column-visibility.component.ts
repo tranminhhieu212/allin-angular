@@ -150,7 +150,6 @@ export class ColumnVisibilityComponent implements OnInit {
         event.currentIndex
       );
 
-      // Update the column's visibility
       if (column) {
         column.visible = event.container.id === 'visible-list';
         this.visibilityChange.emit({

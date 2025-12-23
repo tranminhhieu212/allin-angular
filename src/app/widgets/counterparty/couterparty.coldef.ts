@@ -3,6 +3,8 @@ import { ActionButtonsRendererComponent } from 'src/app/shared/components/table-
 import { ListRendererComponent } from 'src/app/shared/components/table-renderer/cell-renderer/list-renderer/list-renderer.component';
 import { StatusBadgeRendererComponent } from 'src/app/shared/components/table-renderer/cell-renderer/status-badge/status-badge-renderer.component';
 import { DepartmentSetFilterComponent } from '../../shared/components/table-renderer/filters/department-set-filter.component';
+import { GenericSetFilterComponent } from '../../shared/components/table-renderer/filters/generic-set-filter.component';
+import { FILTER_CONFIGS, createFilterParams } from '../../shared/components/table-renderer/filters/filter-configs';
 
 export const counterPartyColumns: ColDef[] = [
     {
@@ -24,7 +26,8 @@ export const counterPartyColumns: ColDef[] = [
         field: 'department',
         headerName: 'Department',
         sortable: true,
-        filter: DepartmentSetFilterComponent,
+        filter: GenericSetFilterComponent,
+        filterParams: createFilterParams(FILTER_CONFIGS.DEPARTMENT),
         floatingFilter: true,
         editable: false,
         cellRenderer: ListRendererComponent
@@ -53,7 +56,9 @@ export const counterPartyColumns: ColDef[] = [
         field: 'status',
         headerName: 'Status',
         sortable: true,
-        filter: true,
+        filter: GenericSetFilterComponent,
+        filterParams: createFilterParams(FILTER_CONFIGS.STATUS),
+        floatingFilter: true,
         cellRenderer: StatusBadgeRendererComponent,
         editable: false
     }, {
