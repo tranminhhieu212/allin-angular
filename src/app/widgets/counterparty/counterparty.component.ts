@@ -25,6 +25,11 @@ export class CounterpartyComponent implements OnInit {
   loading: boolean = false;
   error: string | null = null;
 
+  // Pagination state
+  currentPage: number = 1;
+  pageSize: number = 30;
+  totalRows: number = 0;
+
   constructor(private counterpartyService: CounterpartyService) {
   }
 
@@ -40,16 +45,29 @@ export class CounterpartyComponent implements OnInit {
 
   onFilterChangedHandler($event: any) {
     console.log('Filter model:', $event);
+    this.currentPage = 1; // Reset to first page when filters change
     this.fetchData($event);
+  }
+
+  onPaginationChanged($event: any) {
+    console.log('Pagination changed:', $event);
+
+    // Prevent infinite loops - only fetch if page or pageSize actually changed
+    if (this.currentPage !== $event.page || this.pageSize !== $event.pageSize) {
+      this.currentPage = $event.page;
+      this.pageSize = $event.pageSize;
+      this.fetchData();
+    }
   }
 
   fetchData(filterModel?: any) {
     this.loading = true;
     this.error = null;
     console.log(filterModel);
-    this.counterpartyService.getCounterparties(filterModel).subscribe({
+    this.counterpartyService.getCounterparties(filterModel, this.currentPage, this.pageSize).subscribe({
       next: (data) => {
         this.counterPartyDatas = data.data;
+        this.totalRows = data.pagination?.total || data.total || 0;
         this.loading = false;
         console.log('Counterparty data loaded:', data);
       },

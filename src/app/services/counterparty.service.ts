@@ -10,24 +10,25 @@ export class CounterpartyService {
 
   constructor(private http: HttpClient) { }
 
-  getCounterparties(filterModel?: Record<string, any>): Observable<any> {
-    if (!filterModel) {
-      return this.http.get(this.apiUrl);
+  getCounterparties(filterModel?: Record<string, any>, page: number = 1, pageSize: number = 30): Observable<any> {
+    const params: Record<string, string> = {
+      page: String(page),
+      pageSize: String(pageSize)
+    };
+
+    if (filterModel) {
+      Object.entries(filterModel).forEach(([key, value]) => {
+        if (!value || (Array.isArray(value) && value.length === 0)) {
+          return;
+        }
+        if (Array.isArray(value)) {
+          params[key] = value.join(',');
+        }
+        else {
+          params[key] = String(value);
+        }
+      });
     }
-
-    const params: Record<string, string> = {};
-
-    Object.entries(filterModel).forEach(([key, value]) => {
-      if (!value || (Array.isArray(value) && value.length === 0)) {
-        return;
-      }
-      if (Array.isArray(value)) {
-        params[key] = value.join(',');
-      }
-      else {
-        params[key] = String(value);
-      }
-    });
 
     return this.http.get(this.apiUrl, { params });
   }

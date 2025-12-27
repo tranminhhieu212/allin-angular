@@ -25,22 +25,29 @@ export class TableRendererComponent implements OnInit, OnChanges {
   @Input() pagination = true;
   @Input() externalFilter = false;
   @Input() columnVisibility: boolean = false;
+  @Input() serverSidePagination = false;
+  @Input() totalRows: number = 0;
+  @Input() currentPage: number = 1;
+  @Input() pageSize: number = 30;
 
   @Output() gridReady = new EventEmitter<any>();
   @Output() filterChanged = new EventEmitter<FilterModel>();
+  @Output() paginationChanged = new EventEmitter<{ page: number; pageSize: number }>();
 
   gridApi: any;
   locked_columns = ['id', 'actions']
   visibleColumnDefs: ColDef[] = [];
   columnVisibilityList: ColumnVisibility[] = [];
   defaultColumnVisibilityList: ColumnVisibility[] = [];
+  displayRowData: any[] = [];
+  private isUpdatingData = false;
 
   gridOptions: any = {
-    pagination: this.pagination || true,
-    paginationPageSize: 30,
+    pagination: false,  // Disable AG-Grid pagination, we'll use custom
     suppressRowClickSelection: true,
     isExternalFilterPresent: () => true,
-    doesExternalFilterPass: (node: any) => true,
+    doesExternalFilterPass: () => true,
+    suppressPaginationPanel: true,  // Hide AG-Grid's pagination panel
   };
 
   defaultColDef: ColDef = {
@@ -53,6 +60,29 @@ export class TableRendererComponent implements OnInit, OnChanges {
     autoHeight: true,
   };
 
+  // Custom pagination getters
+  get totalPages(): number {
+    if (!this.serverSidePagination || this.totalRows === 0) return 1;
+    return Math.ceil(this.totalRows / this.pageSize);
+  }
+
+  get paginationStart(): number {
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get paginationEnd(): number {
+    const end = this.currentPage * this.pageSize;
+    return end > this.totalRows ? this.totalRows : end;
+  }
+
+  get hasNextPage(): boolean {
+    return this.currentPage < this.totalPages;
+  }
+
+  get hasPrevPage(): boolean {
+    return this.currentPage > 1;
+  }
+
   constructor() {
   }
 
@@ -64,6 +94,11 @@ export class TableRendererComponent implements OnInit, OnChanges {
     if (changes['columnDef'] && !changes['columnDef'].firstChange) {
       this.initializeColumnVisibility();
       this.updateVisibleColumns();
+    }
+
+    // Update display data when rowData, totalRows, currentPage, or pageSize changes
+    if (changes['rowData'] || changes['totalRows'] || changes['currentPage'] || changes['pageSize']) {
+      this.updateDisplayData();
     }
   }
 
@@ -125,9 +160,56 @@ export class TableRendererComponent implements OnInit, OnChanges {
       this.updateVisibleColumns();
     }
 
+    if (this.serverSidePagination) {
+      this.setupServerSidePagination();
+    }
+
     params.api.onFilterChanged();
 
     this.gridReady.emit(params.api);
+  }
+
+  private setupServerSidePagination(): void {
+    if (!this.gridApi) return;
+    // Custom pagination - no AG-Grid pagination events needed
+    this.updateDisplayData();
+  }
+
+  private updateDisplayData(): void {
+    if (!this.serverSidePagination || this.totalRows === 0) {
+      this.displayRowData = this.rowData;
+      return;
+    }
+
+    // Set flag to prevent pagination event loops
+    this.isUpdatingData = true;
+
+    // For server-side pagination with simple pagination model:
+    // We just show the current page data and disable pagination navigation
+    // The component manages which page to show
+
+    console.log('updateDisplayData called:', {
+      currentPage: this.currentPage,
+      pageSize: this.pageSize,
+      totalRows: this.totalRows,
+      rowDataLength: this.rowData.length
+    });
+
+    // Simply use the current page data without placeholders
+    this.displayRowData = this.rowData;
+
+    // Update grid pagination settings
+    if (this.gridApi) {
+      // Disable pagination temporarily to update settings
+      this.gridApi.paginationSetPageSize(this.pageSize);
+
+      // Update the pagination panel to show correct info
+      setTimeout(() => {
+        this.isUpdatingData = false;
+      }, 50);
+    } else {
+      this.isUpdatingData = false;
+    }
   }
 
   clearFilters() {
@@ -145,5 +227,30 @@ export class TableRendererComponent implements OnInit, OnChanges {
     });
 
     this.filterChanged.emit(filters);
+  }
+
+  // Custom pagination methods
+  goToNextPage(): void {
+    if (this.hasNextPage) {
+      this.paginationChanged.emit({ page: this.currentPage + 1, pageSize: this.pageSize });
+    }
+  }
+
+  goToPrevPage(): void {
+    if (this.hasPrevPage) {
+      this.paginationChanged.emit({ page: this.currentPage - 1, pageSize: this.pageSize });
+    }
+  }
+
+  goToFirstPage(): void {
+    if (this.currentPage !== 1) {
+      this.paginationChanged.emit({ page: 1, pageSize: this.pageSize });
+    }
+  }
+
+  goToLastPage(): void {
+    if (this.currentPage !== this.totalPages) {
+      this.paginationChanged.emit({ page: this.totalPages, pageSize: this.pageSize });
+    }
   }
 }
